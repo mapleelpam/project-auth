@@ -1,0 +1,153 @@
+/***************************************************************************
+ *
+ * CURL copy right: http://curl.haxx.se/docs/copyright.html.
+ * 
+ ***************************************************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <termios.h>		// for hinding password
+#include <unistd.h>			// for hinding password
+#include <string.h>
+#include <curl/curl.h>
+
+#define KEY_SIZE				20
+#define VALUE_SIZE				200
+#define POST_STRING_MAX_LENGTH	300
+#define PARA_N					4
+#define CONTENT_SIZE			20000
+
+#define URL						"http://heron.nctucs.net/authcpp/custom-wp-login.php"
+#define URL_TEST				"http://heron.nctucs.net/authcpp/post/post.php"
+
+// data type
+typedef struct {
+	char *key;
+	char *value;
+} PARA;
+
+// functions
+char *convert_para(PARA paras[], int size);
+void get_password(char *password);
+void curl_post();
+
+// main
+int main(void)
+{
+	char url[] = URL;
+	char username[VALUE_SIZE];
+	char password[VALUE_SIZE];
+	char *device_code;
+	PARA paras[PARA_N];
+
+	// read
+	printf("username >> ");
+	scanf("%s", username);
+
+	// read - password is hidden when typing
+	printf("password >> ");
+	get_password(password);
+	printf("\n");
+
+	//*****************************************
+	// device code here
+	device_code = "abcd1234";
+	//*****************************************
+
+	//
+	paras[0].key = "log",			paras[0].value = username;
+	paras[1].key = "pwd",			paras[1].value = password;
+	paras[2].key = "device_code",	paras[2].value = device_code;
+	paras[3].key = "action",		paras[3].value = "login";
+
+	//
+	printf("\n============= post response ==============\n");
+	char *paras_str;
+	paras_str = convert_para(paras, sizeof(paras)/sizeof(paras[0]));
+	curl_post(url, paras_str);
+
+	//
+	return 0;
+}
+
+void get_password(char *password){
+
+	// set hidden
+	struct termios term, term_orig;
+	tcgetattr(STDIN_FILENO, &term);
+	term_orig = term;
+	term.c_lflag &= ~ECHO;
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
+
+	// read here
+	scanf("%s", password);
+
+	// set back
+	tcsetattr(STDIN_FILENO, TCSANOW, &term_orig);
+}
+
+char *convert_para(PARA paras[], int size){
+
+	// if input paras is empty
+	if(sizeof(paras) == 0 || sizeof(paras[0]) == 0){
+		fprintf(stderr, "convert_para() failed: input paras errer.\n");
+		return NULL;
+	}
+
+	//
+	char *result = calloc(POST_STRING_MAX_LENGTH, sizeof(char));
+	int i;
+	for(i=0 ; i<size ; i++){
+		strcat(result, paras[i].key);
+		strcat(result, "=");
+		strcat(result, paras[i].value);
+		if(i != size-1)	strcat(result, "&");
+	}
+
+	return result;
+}
+
+size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp)
+{
+}
+
+void curl_post(char url[], char *paras_str){
+	//
+	CURL *curl;
+	CURLcode res;
+	char content[CONTENT_SIZE];
+
+	/* In windows, this will init the winsock stuff */
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	/* get a curl handle */
+	curl = curl_easy_init();
+	if(curl) {
+		/* First set the URL that is about to receive our POST. This URL can
+		   just as well be a https:// URL if that is what should receive the
+		   data. */
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+
+		/* Now specify the POST data */
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, paras_str);
+
+		/* Turn the result print to custom function */
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if(res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+					curl_easy_strerror(res));
+
+		/* Print Out Result */
+		printf("%s", content);
+
+		/* always cleanup */
+		curl_easy_cleanup(curl);
+	}
+
+	// cleanup
+	curl_global_cleanup();
+}
