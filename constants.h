@@ -7,7 +7,6 @@
 #define LOGIN_SUCCESS			1
 #define LOGIN_ERROR				(-1)
 
-#define URL						"http://heron.nctucs.net/authcpp/custom-wp-login.php"
-#define URL_TEST				"http://heron.nctucs.net/authcpp/post/post.php"
+#define URL						"http://auth.nctucs.net/wp-content/plugins/auth/custom-login.php"
 
 #define SUCCESS_STR				"SUCCESS"

@@ -82,7 +82,7 @@ int curl_post(char url[], char *paras_str){
 					curl_easy_strerror(res));
 
 		/* Print Out Result */
-		printf("%s", content.ptr);
+		//printf("%s", content.ptr);
 		login_status = check_login_status(content.ptr);
 		free(content.ptr);
 

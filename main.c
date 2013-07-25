@@ -37,7 +37,6 @@ int main(void)
 	paras[3].key = "action",		paras[3].value = "login";
 
 	//
-	printf("\n============= post response ==============\n");
 	char *paras_str;
 	paras_str = convert_para(paras, sizeof(paras)/sizeof(paras[0]));
 	if( curl_post(url, paras_str) == LOGIN_SUCCESS){
