@@ -98,15 +98,7 @@ int curl_post(char url[], char *paras_str){
 }
 
 int check_login_status(char *content_s){
-	int len = sizeof(SUCCESS_STR);
-	char sub_s[len];
-	memcpy( sub_s, content_s, len-1 );		// ignore last ending char
-
-	if (strcmp(sub_s, SUCCESS_STR) == 0){
-		return LOGIN_SUCCESS;
-	}
-
-	return LOGIN_ERROR;
+	return (int)(content_s[0] - '0');
 }
 
 void init_string(struct string *s) {

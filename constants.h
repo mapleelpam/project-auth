@@ -9,4 +9,6 @@
 
 #define URL						"http://auth.nctucs.net/wp-content/plugins/auth/custom-login.php"
 
-#define SUCCESS_STR				"SUCCESS"
+#define SUCCESS_STR				1
+#define WRONG_DEVICE_STR		2
+#define FAIL_LOGIN_STR			0

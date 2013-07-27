@@ -13,7 +13,7 @@ int main(void)
 	char url[] = URL;
 	char username[VALUE_SIZE];
 	char password[VALUE_SIZE];
-	char *device_code;
+	char *device_str;
 	PARA paras[PARA_N];
 
 	// read
@@ -26,23 +26,31 @@ int main(void)
 	printf("\n");
 
 	//*****************************************
-	// device code here
-	device_code = "abcd1234";
+	// device str here
+	device_str = "tF27432Bh0Xt26s468HQ";
 	//*****************************************
 
 	//
 	paras[0].key = "log",			paras[0].value = username;
 	paras[1].key = "pwd",			paras[1].value = password;
-	paras[2].key = "device_code",	paras[2].value = device_code;
+	paras[2].key = "device_str",	paras[2].value = device_str;
 	paras[3].key = "action",		paras[3].value = "login";
 
 	//
+	int login_status;
 	char *paras_str;
 	paras_str = convert_para(paras, sizeof(paras)/sizeof(paras[0]));
-	if( curl_post(url, paras_str) == LOGIN_SUCCESS){
-		printf("successful login.\n");
-	} else {
-		printf("login error.\n");
+
+	login_status = curl_post(url, paras_str);
+
+	if (login_status == SUCCESS_STR) {
+		printf("success\n");
+	}
+	else if (login_status == WRONG_DEVICE_STR) {
+		printf("wrong device string\n");
+	}
+	else {
+		printf("fail to login\n");
 	}
 
 	//
